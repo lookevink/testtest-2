@@ -5,11 +5,22 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const body = await request.json();
-  return new Response(JSON.stringify(body), {
-    headers: {
-      "Content-Type": "application/json",
-    }, status: 500,
-  });
+  try {
+    const body = await request.json();
+    throw new Error("test", { cause: body });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return new Response(JSON.stringify({ cause: error.cause, message: error.message }), {
+        headers: {
+          "Content-Type": "application/json",
+        }, status: 500,
+      });
+    }
+    return new Response(JSON.stringify(error), {
+      headers: {
+        "Content-Type": "application/json",
+      }, status: 500,
+    });
+  }
 }
 
